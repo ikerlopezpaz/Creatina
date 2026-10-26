@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap">
 <style>
-/* App de una pantalla: tarjeta degradada rojo coral→carmesí con el anillo de hoy, cifras, calendario del mes */
+/* App de una pantalla: tarjeta degradada rojo coral→carmesí con el anillo de hoy, cifras, bote, calendario del mes */
 :root {
   --bg: #fbefef;
   --surface: #ffffff;
@@ -61,9 +61,15 @@ body::before {
 }
 main { max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
 
-header { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 6px; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 2px 0 6px 4px; }
 .brand { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.02em; margin: 0; }
-.date { color: var(--muted); font-size: 0.9rem; font-weight: 600; }
+.head-right { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.date { color: var(--muted); font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.icon-btn {
+  width: 38px; height: 38px; flex: none; border-radius: 12px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--fg); display: grid; place-items: center; cursor: pointer; padding: 0;
+}
+.icon-btn svg { width: 20px; height: 20px; }
 
 .card { background: var(--surface); border-radius: 24px; box-shadow: var(--shadow); }
 
@@ -117,7 +123,6 @@ header { display: flex; justify-content: space-between; align-items: center; pad
   color: rgba(255,255,255,.9); font: inherit; font-size: 0.86rem; font-weight: 600;
   text-decoration: underline; text-underline-offset: 3px; cursor: pointer; border-radius: 8px;
 }
-.undo:focus-visible { outline: 2px solid #ffffff; }
 
 /* Cifras */
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -125,9 +130,31 @@ header { display: flex; justify-content: space-between; align-items: center; pad
 .stat .num { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .stat .num small { font-size: 0.95rem; color: var(--muted); font-weight: 500; }
 .stat .lbl { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+.stat .best { margin-top: 8px; font-size: 0.8rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stat .best b { color: var(--fg); }
 .stat.streak .num { color: var(--hot-b); }
 .bar { height: 6px; border-radius: 3px; background: var(--soft); margin-top: 8px; overflow: hidden; }
 .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--hot-a), var(--hot-b)); border-radius: 3px; width: 0; transition: width .5s ease; }
+
+/* Bote */
+.jar { padding: 16px 18px; display: flex; align-items: center; gap: 16px; }
+.jar-fig { position: relative; width: 44px; height: 58px; flex: none; }
+.jar-fig .lid { position: absolute; left: 6px; right: 6px; top: 0; height: 9px; border-radius: 4px; background: var(--hot-b); }
+.jar-fig .body {
+  position: absolute; left: 0; right: 0; top: 7px; bottom: 0; border-radius: 10px;
+  border: 2px solid var(--line); background: var(--surface); overflow: hidden;
+}
+.jar-fig .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: linear-gradient(180deg, var(--hot-a), var(--hot-b)); opacity: .85; transition: height .5s ease; }
+.jar-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.jar-text .t1 { font-weight: 700; font-size: 1rem; }
+.jar-text .t1 b { font-family: var(--font-display); font-size: 1.15rem; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.jar-text .t2 { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+.jar.low .t2 { color: var(--hot-b); }
+.chip {
+  flex: none; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+  font: inherit; font-size: 0.82rem; font-weight: 700; padding: 8px 12px; cursor: pointer;
+}
+.jar.low .chip { background: var(--hot-b); border-color: var(--hot-b); color: #ffffff; }
 
 /* Calendario */
 .cal { padding: 18px 16px 16px; }
@@ -156,7 +183,7 @@ header { display: flex; justify-content: space-between; align-items: center; pad
 
 /* Copia de seguridad */
 .backup { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
-.backup h3 { margin: 0; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; }
+.backup h3, .sheet h3 { margin: 0; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; }
 .backup p { margin: 0; color: var(--muted); font-size: 0.84rem; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; }
 .btn {
@@ -164,11 +191,38 @@ header { display: flex; justify-content: space-between; align-items: center; pad
   font: inherit; font-size: 0.9rem; font-weight: 700; padding: 11px 12px; cursor: pointer; text-align: center;
 }
 .btn:active { background: var(--soft); }
+.btn.primary { flex: none; padding: 14px; background: var(--hot-b); border-color: var(--hot-b); color: #ffffff; }
 .msg { color: var(--hot-b); font-size: 0.84rem; font-weight: 600; }
 .msg:empty { display: none; }
 
+/* Ajustes (hoja inferior) */
+dialog.sheet {
+  width: 100%; max-width: 440px; margin: auto auto 0; border: 0; padding: 0;
+  background: transparent; color: var(--fg);
+}
+dialog.sheet::backdrop { background: rgba(10, 4, 5, .45); }
+.sheet-inner {
+  background: var(--surface); border-radius: 24px 24px 0 0;
+  padding: 20px max(18px, env(safe-area-inset-left, 0px)) calc(env(safe-area-inset-bottom, 0px) + 20px) max(18px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 18px;
+}
+.sheet-top { display: flex; justify-content: space-between; align-items: center; }
+.sheet-top h2 { margin: 0; font-family: var(--font-display); font-size: 1.1rem; letter-spacing: -0.02em; }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.stepper { display: flex; align-items: center; gap: 10px; }
+.stepper button {
+  width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface);
+  color: var(--fg); font: inherit; font-size: 1.3rem; font-weight: 700; cursor: pointer;
+}
+.stepper input {
+  flex: 1; min-width: 0; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg);
+  color: var(--fg); font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; text-align: center;
+  -webkit-user-select: text; user-select: text;
+}
+.hint { margin: 0; color: var(--muted); font-size: 0.8rem; }
+
 @media (prefers-reduced-motion: reduce) {
-  .prog, .disc, .check path, .bar i, .d, .ring-btn { transition: none !important; }
+  .prog, .disc, .check path, .bar i, .d, .ring-btn, .jar-fig .fill { transition: none !important; }
 }
 </style>
 </head>
@@ -176,7 +230,12 @@ header { display: flex; justify-content: space-between; align-items: center; pad
 <main>
   <header>
     <h1 class="brand">Creatina</h1>
-    <span class="date" id="date"></span>
+    <div class="head-right">
+      <span class="date" id="date"></span>
+      <button class="icon-btn" id="openSettings" type="button" aria-label="Ajustes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="17" r="2"></circle></svg>
+      </button>
+    </div>
   </header>
 
   <section class="card hero" aria-live="polite">
@@ -202,12 +261,22 @@ header { display: flex; justify-content: space-between; align-items: center; pad
     <div class="card stat streak">
       <span class="num" id="streak">0</span>
       <span class="lbl" id="streakLbl">días seguidos</span>
+      <span class="best">Récord: <b id="best">0</b></span>
     </div>
     <div class="card stat">
       <span class="num"><span id="monthCount">0</span><small id="monthOf"> / 0</small></span>
       <span class="lbl" id="monthLbl">este mes</span>
       <div class="bar"><i id="monthBar"></i></div>
     </div>
+  </section>
+
+  <section class="card jar" id="jar">
+    <div class="jar-fig" aria-hidden="true"><span class="lid"></span><span class="body"><span class="fill" id="jarFill"></span></span></div>
+    <div class="jar-text">
+      <span class="t1" id="jarT1">Bote</span>
+      <span class="t2" id="jarT2"></span>
+    </div>
+    <button class="chip" id="jarBtn" type="button">Bote nuevo</button>
   </section>
 
   <section class="card cal">
@@ -225,7 +294,7 @@ header { display: flex; justify-content: space-between; align-items: center; pad
 
   <section class="card backup">
     <h3>Copia de seguridad</h3>
-    <p>Tus días se guardan solo en este iPhone. Guarda una copia de vez en cuando por si cambias de móvil.</p>
+    <p>Tus días se guardan solo en este móvil. Guarda una copia de vez en cuando por si cambias de teléfono.</p>
     <div class="row">
       <button class="btn" id="exportBtn" type="button">Guardar copia</button>
       <button class="btn" id="importBtn" type="button">Restaurar copia</button>
@@ -235,27 +304,83 @@ header { display: flex; justify-content: space-between; align-items: center; pad
   </section>
 </main>
 
+<dialog class="sheet" id="settings" aria-labelledby="settingsTitle">
+  <form class="sheet-inner" id="settingsForm" method="dialog">
+    <div class="sheet-top">
+      <h2 id="settingsTitle">Ajustes</h2>
+      <button class="icon-btn" id="closeSettings" type="button" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
+    </div>
+
+    <div class="field">
+      <h3><label for="doseInput">Dosis diaria (gramos)</label></h3>
+      <div class="stepper">
+        <button type="button" data-step="dose" data-d="-1" aria-label="Menos">−</button>
+        <input id="doseInput" type="number" inputmode="decimal" min="1" max="30" step="0.5">
+        <button type="button" data-step="dose" data-d="1" aria-label="Más">+</button>
+      </div>
+      <p class="hint">Lo habitual son entre 3 y 5 g al día.</p>
+    </div>
+
+    <div class="field">
+      <h3><label for="jarInput">Tamaño del bote (gramos)</label></h3>
+      <div class="stepper">
+        <button type="button" data-step="jar" data-d="-50" aria-label="Menos">−</button>
+        <input id="jarInput" type="number" inputmode="numeric" min="50" max="5000" step="50">
+        <button type="button" data-step="jar" data-d="50" aria-label="Más">+</button>
+      </div>
+      <p class="hint">Se usa al empezar un bote nuevo.</p>
+    </div>
+
+    <button class="btn primary" id="saveSettings" type="submit">Guardar</button>
+  </form>
+</dialog>
+
 <script>
 (function () {
   const DOW = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   const MONTHS = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
   const LS_KEY = "creatina-dias";
+  const LS_SET = "creatina-ajustes";
 
   let days = {};
+  let settings = { dose: 7, jarSize: 300, jarStart: null, jarAmount: 300 };
   let view = new Date(); view.setDate(1);
 
   const $ = id => document.getElementById(id);
   const pad = n => String(n).padStart(2, "0");
   const key = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
   const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const fromKey = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+  const fmtG = g => (Math.round(g * 10) / 10).toString().replace(".", ",");
 
-  function load() { try { const r = localStorage.getItem(LS_KEY); if (r) days = JSON.parse(r) || {}; } catch (e) {} }
-  function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(days)); } catch (e) {} }
+  function load() {
+    try { const r = localStorage.getItem(LS_KEY); if (r) days = JSON.parse(r) || {}; } catch (e) {}
+    try { const s = localStorage.getItem(LS_SET); if (s) settings = Object.assign(settings, JSON.parse(s) || {}); } catch (e) {}
+  }
+  function save() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(days)); } catch (e) {}
+    try { localStorage.setItem(LS_SET, JSON.stringify(settings)); } catch (e) {}
+  }
+
+  function bestStreak() {
+    const ks = Object.keys(days).sort();
+    let best = 0, run = 0, prev = null;
+    ks.forEach(k => {
+      const d = fromKey(k);
+      run = prev && key(addDays(prev, 1)) === k ? run + 1 : 1;
+      if (run > best) best = run;
+      prev = d;
+    });
+    return best;
+  }
 
   function render() {
     const now = new Date();
     const today = key(now);
     $("date").textContent = DOW[now.getDay()] + ", " + now.getDate() + " de " + MONTHS[now.getMonth()];
+    $("pending").textContent = fmtG(settings.dose) + " g";
 
     const t = days[today];
     const ring = $("ring");
@@ -276,12 +401,15 @@ header { display: flex; justify-content: space-between; align-items: center; pad
       $("sub").textContent = "Hoy está pendiente";
     }
 
+    // Rachas
     let streak = 0;
     let d = t ? now : addDays(now, -1);
     while (days[key(d)]) { streak++; d = addDays(d, -1); }
     $("streak").textContent = streak;
     $("streakLbl").textContent = streak === 1 ? "día seguido" : "días seguidos";
+    $("best").textContent = Math.max(bestStreak(), streak);
 
+    // Mes
     const prefix = today.slice(0, 7);
     const count = Object.keys(days).filter(k => k.startsWith(prefix)).length;
     $("monthCount").textContent = count;
@@ -289,6 +417,30 @@ header { display: flex; justify-content: space-between; align-items: center; pad
     $("monthLbl").textContent = "en " + MONTHS[now.getMonth()];
     $("monthBar").style.width = Math.min(100, Math.round(count / now.getDate() * 100)) + "%";
 
+    // Bote
+    const jar = $("jar");
+    if (!settings.jarStart) {
+      jar.classList.remove("low");
+      $("jarT1").textContent = "Bote";
+      $("jarT2").textContent = "Empieza uno para saber cuánto te queda";
+      $("jarFill").style.height = "0%";
+      $("jarBtn").textContent = "Empezar";
+    } else {
+      const used = Object.keys(days).filter(k => k >= settings.jarStart)
+        .reduce((s, k) => s + (typeof days[k].g === "number" ? days[k].g : settings.dose), 0);
+      const left = Math.max(0, settings.jarAmount - used);
+      const daysLeft = Math.floor(left / settings.dose);
+      const low = daysLeft <= 7;
+      jar.classList.toggle("low", low);
+      $("jarT1").innerHTML = "Quedan <b>" + fmtG(left) + " g</b>";
+      $("jarT2").textContent = left <= 0 ? "Bote vacío"
+        : low ? (daysLeft === 1 ? "Para 1 día. Compra otro ya" : "Para " + daysLeft + " días. Compra otro pronto")
+        : "Para unos " + daysLeft + " días";
+      $("jarFill").style.height = Math.max(0, Math.min(100, left / settings.jarAmount * 100)) + "%";
+      $("jarBtn").textContent = "Bote nuevo";
+    }
+
+    // Calendario
     const y = view.getFullYear(), m = view.getMonth();
     $("calTitle").textContent = MONTHS[m] + " " + y;
     $("next").disabled = y === now.getFullYear() && m === now.getMonth();
@@ -316,7 +468,7 @@ header { display: flex; justify-content: space-between; align-items: center; pad
 
   function toggle(k) {
     if (days[k]) delete days[k];
-    else days[k] = { at: k === key(new Date()) ? new Date().toISOString() : null };
+    else days[k] = { at: k === key(new Date()) ? new Date().toISOString() : null, g: settings.dose };
     save(); render();
   }
 
@@ -326,9 +478,45 @@ header { display: flex; justify-content: space-between; align-items: center; pad
   $("next").addEventListener("click", () => { view.setMonth(view.getMonth() + 1); render(); });
   document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); });
 
+  // Bote nuevo: empieza a contar desde mañana si hoy ya se tomó (esa toma era del bote anterior)
+  $("jarBtn").addEventListener("click", () => {
+    const now = new Date();
+    settings.jarStart = days[key(now)] ? key(addDays(now, 1)) : key(now);
+    settings.jarAmount = settings.jarSize;
+    save(); render();
+  });
+
+  // Ajustes
+  const dlg = $("settings");
+  function openSettings() {
+    $("doseInput").value = settings.dose;
+    $("jarInput").value = settings.jarSize;
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+  }
+  function closeSettings() { if (dlg.close) dlg.close(); else dlg.removeAttribute("open"); }
+  $("openSettings").addEventListener("click", openSettings);
+  $("closeSettings").addEventListener("click", closeSettings);
+  dlg.addEventListener("click", e => { if (e.target === dlg) closeSettings(); });
+  document.querySelectorAll("[data-step]").forEach(b => b.addEventListener("click", () => {
+    const input = b.dataset.step === "dose" ? $("doseInput") : $("jarInput");
+    const v = (parseFloat(String(input.value).replace(",", ".")) || 0) + parseFloat(b.dataset.d);
+    input.value = Math.min(parseFloat(input.max), Math.max(parseFloat(input.min), v));
+  }));
+  $("settingsForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const dose = parseFloat(String($("doseInput").value).replace(",", "."));
+    const jarSize = parseInt($("jarInput").value, 10);
+    if (dose >= 1 && dose <= 30) settings.dose = Math.round(dose * 2) / 2;
+    if (jarSize >= 50 && jarSize <= 5000) {
+      if (settings.jarStart && settings.jarAmount === settings.jarSize) settings.jarAmount = jarSize;
+      settings.jarSize = jarSize;
+    }
+    save(); render(); closeSettings();
+  });
+
   // Copia de seguridad
   $("exportBtn").addEventListener("click", async () => {
-    const json = JSON.stringify({ app: "creatina", version: 1, days }, null, 1);
+    const json = JSON.stringify({ app: "creatina", version: 2, days, settings }, null, 1);
     const name = "creatina-" + key(new Date()) + ".json";
     try {
       const file = new File([json], name, { type: "application/json" });
@@ -358,8 +546,14 @@ header { display: flex; justify-content: space-between; align-items: center; pad
       if (!incoming) throw new Error("formato");
       let added = 0;
       Object.keys(incoming).forEach(k => {
-        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && !days[k]) { days[k] = { at: incoming[k] && incoming[k].at || null }; added++; }
+        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && !days[k]) {
+          const v = incoming[k] || {};
+          days[k] = { at: v.at || null };
+          if (typeof v.g === "number") days[k].g = v.g;
+          added++;
+        }
       });
+      if (data.settings && typeof data.settings === "object") settings = Object.assign(settings, data.settings);
       save(); render();
       $("backupMsg").textContent = added ? "Restaurados " + added + " días." : "La copia no tenía días nuevos.";
     } catch (err) {
