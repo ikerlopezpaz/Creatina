@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Creatina</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Creatina">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#fbefef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#140809" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* App de una pantalla: tarjeta degradada rojo coral→carmesí con el anillo de hoy, cifras, calendario del mes */
+:root {
+  --bg: #fbefef;
+  --surface: #ffffff;
+  --fg: #2a1216;
+  --muted: #8a6a6e;
+  --line: #f1dcdd;
+  --hot-a: #ff5a4e;
+  --hot-b: #e3122d;
+  --hot-c: #9e0025;
+  --soft: #ffdfe0;
+  --font-display: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --shadow: 0 1px 2px rgba(42, 18, 22, .05), 0 10px 28px rgba(42, 18, 22, .07);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #140809; --surface: #231114; --fg: #fdeeee; --muted: #b8979a; --line: #3a1d21;
+    --hot-a: #ff6a5c; --hot-b: #ec2638; --hot-c: #a8102e; --soft: #3d1a1f;
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 10px 28px rgba(0,0,0,.3);
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh;
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.4;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none; user-select: none;
+}
+main { max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+header { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 6px; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.02em; margin: 0; }
+.date { color: var(--muted); font-size: 0.9rem; font-weight: 600; }
+
+.card { background: var(--surface); border-radius: 24px; box-shadow: var(--shadow); }
+
+/* Tarjeta principal */
+.hero {
+  position: relative; overflow: hidden;
+  background: linear-gradient(150deg, var(--hot-a) 0%, var(--hot-b) 55%, var(--hot-c) 100%);
+  color: #ffffff; padding: 24px 20px 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.hero::after {
+  content: ""; position: absolute; width: 260px; height: 260px; border-radius: 50%;
+  right: -90px; top: -110px; background: rgba(255,255,255,.12); pointer-events: none;
+}
+.ring-btn {
+  position: relative; z-index: 1; width: 224px; height: 224px; max-width: 100%;
+  border: 0; padding: 0; background: none; border-radius: 50%; cursor: pointer; color: #ffffff;
+  transition: transform .15s ease;
+}
+.ring-btn:active { transform: scale(0.97); }
+.ring-btn:focus-visible { outline: 3px solid #ffffff; outline-offset: 6px; }
+.ring-btn > svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.track { fill: none; stroke: rgba(255,255,255,.28); stroke-width: 14; }
+.prog {
+  fill: none; stroke: #ffffff; stroke-width: 14; stroke-linecap: round;
+  stroke-dasharray: 609.47; stroke-dashoffset: 609.47;
+  transition: stroke-dashoffset .7s cubic-bezier(.65, 0, .35, 1);
+}
+.ring-btn.done .prog { stroke-dashoffset: 0; }
+.disc {
+  position: absolute; inset: 26px; border-radius: 50%;
+  background: rgba(255,255,255,.18); color: #ffffff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  transition: background .35s ease .35s, color .35s ease .35s;
+}
+.ring-btn.done .disc { background: #ffffff; color: var(--hot-b); }
+.dose { font-family: var(--font-display); font-weight: 700; font-size: 2.6rem; letter-spacing: -0.03em; line-height: 1; }
+.disc-label { font-weight: 700; font-size: 0.95rem; }
+.check { width: 64px; height: 64px; }
+.check path {
+  fill: none; stroke: currentColor; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 60; stroke-dashoffset: 60; transition: stroke-dashoffset .4s ease .55s;
+}
+.ring-btn.done .check path { stroke-dashoffset: 0; }
+
+.headline { position: relative; z-index: 1; text-align: center; display: flex; flex-direction: column; gap: 4px; }
+.headline h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.headline p { margin: 0; color: rgba(255,255,255,.9); font-size: 0.95rem; font-weight: 500; min-height: 1.4em; }
+.undo {
+  position: relative; z-index: 1; background: none; border: 0; padding: 4px 10px;
+  color: rgba(255,255,255,.9); font: inherit; font-size: 0.86rem; font-weight: 600;
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer; border-radius: 8px;
+}
+.undo:focus-visible { outline: 2px solid #ffffff; }
+
+/* Cifras */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.stat { padding: 16px 18px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stat .num { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat .num small { font-size: 0.95rem; color: var(--muted); font-weight: 500; }
+.stat .lbl { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+.stat.streak .num { color: var(--hot-b); }
+.bar { height: 6px; border-radius: 3px; background: var(--soft); margin-top: 8px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--hot-a), var(--hot-b)); border-radius: 3px; width: 0; transition: width .5s ease; }
+
+/* Calendario */
+.cal { padding: 18px 16px 16px; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 2px; }
+.cal-head h3 { margin: 0; font-size: 1rem; font-weight: 700; text-transform: capitalize; }
+.nav { display: flex; gap: 6px; }
+.nav button {
+  width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--fg); font: inherit; font-size: 1.1rem; cursor: pointer;
+  display: grid; place-items: center;
+}
+.nav button:disabled { opacity: .35; cursor: default; }
+.wk, .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.wk span { text-align: center; font-size: 0.72rem; font-weight: 700; color: var(--muted); letter-spacing: 0.06em; padding-bottom: 4px; }
+.d {
+  aspect-ratio: 1; max-width: 100%; border: 0; border-radius: 50%;
+  background: transparent; color: var(--fg); font: inherit; font-size: 0.9rem; font-weight: 700;
+  font-variant-numeric: tabular-nums; cursor: pointer; display: grid; place-items: center; padding: 0;
+  transition: background .2s ease, color .2s ease;
+}
+.d.on { background: linear-gradient(150deg, var(--hot-a), var(--hot-b)); color: #ffffff; }
+.d.today:not(.on) { box-shadow: inset 0 0 0 2px var(--hot-b); color: var(--hot-b); }
+.d:disabled { color: var(--muted); opacity: .4; cursor: default; }
+.d.blank { visibility: hidden; }
+.cal-foot { color: var(--muted); font-size: 0.8rem; margin: 12px 2px 0; }
+
+/* Copia de seguridad */
+.backup { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.backup h3 { margin: 0; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; }
+.backup p { margin: 0; color: var(--muted); font-size: 0.84rem; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  flex: 1 1 140px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+  font: inherit; font-size: 0.9rem; font-weight: 700; padding: 11px 12px; cursor: pointer; text-align: center;
+}
+.btn:active { background: var(--soft); }
+.msg { color: var(--hot-b); font-size: 0.84rem; font-weight: 600; }
+.msg:empty { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .prog, .disc, .check path, .bar i, .d, .ring-btn { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 class="brand">Creatina</h1>
+    <span class="date" id="date"></span>
+  </header>
+
+  <section class="card hero" aria-live="polite">
+    <button class="ring-btn" id="ring" type="button" aria-pressed="false">
+      <svg viewBox="0 0 224 224" aria-hidden="true">
+        <circle class="track" cx="112" cy="112" r="97"></circle>
+        <circle class="prog" cx="112" cy="112" r="97"></circle>
+      </svg>
+      <span class="disc">
+        <span id="pending" class="dose">7 g</span>
+        <svg id="checkmark" class="check" viewBox="0 0 64 64" aria-hidden="true" hidden><path d="M16 33 l11 11 l21 -23"></path></svg>
+        <span class="disc-label" id="discLabel">Toca al tomarla</span>
+      </span>
+    </button>
+    <div class="headline">
+      <h2 id="status">Aún no la has tomado</h2>
+      <p id="sub">Hoy está pendiente</p>
+    </div>
+    <button class="undo" id="undo" type="button" hidden>Desmarcar hoy</button>
+  </section>
+
+  <section class="stats">
+    <div class="card stat streak">
+      <span class="num" id="streak">0</span>
+      <span class="lbl" id="streakLbl">días seguidos</span>
+    </div>
+    <div class="card stat">
+      <span class="num"><span id="monthCount">0</span><small id="monthOf"> / 0</small></span>
+      <span class="lbl" id="monthLbl">este mes</span>
+      <div class="bar"><i id="monthBar"></i></div>
+    </div>
+  </section>
+
+  <section class="card cal">
+    <div class="cal-head">
+      <h3 id="calTitle"></h3>
+      <div class="nav">
+        <button type="button" id="prev" aria-label="Mes anterior">‹</button>
+        <button type="button" id="next" aria-label="Mes siguiente">›</button>
+      </div>
+    </div>
+    <div class="wk" aria-hidden="true"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+    <div class="days" id="days"></div>
+    <p class="cal-foot">Toca un día pasado para marcarlo o desmarcarlo.</p>
+  </section>
+
+  <section class="card backup">
+    <h3>Copia de seguridad</h3>
+    <p>Tus días se guardan solo en este iPhone. Guarda una copia de vez en cuando por si cambias de móvil.</p>
+    <div class="row">
+      <button class="btn" id="exportBtn" type="button">Guardar copia</button>
+      <button class="btn" id="importBtn" type="button">Restaurar copia</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json,text/plain" hidden>
+    <span class="msg" id="backupMsg"></span>
+  </section>
+</main>
+
+<script>
+(function () {
+  const DOW = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+  const MONTHS = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  const LS_KEY = "creatina-dias";
+
+  let days = {};
+  let view = new Date(); view.setDate(1);
+
+  const $ = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2, "0");
+  const key = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+
+  function load() { try { const r = localStorage.getItem(LS_KEY); if (r) days = JSON.parse(r) || {}; } catch (e) {} }
+  function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(days)); } catch (e) {} }
+
+  function render() {
+    const now = new Date();
+    const today = key(now);
+    $("date").textContent = DOW[now.getDay()] + ", " + now.getDate() + " de " + MONTHS[now.getMonth()];
+
+    const t = days[today];
+    const ring = $("ring");
+    ring.classList.toggle("done", !!t);
+    ring.setAttribute("aria-pressed", t ? "true" : "false");
+    ring.setAttribute("aria-label", t ? "Creatina de hoy tomada" : "Marcar la creatina de hoy como tomada");
+    $("pending").hidden = !!t;
+    $("checkmark").hidden = !t;
+    $("undo").hidden = !t;
+    if (t) {
+      const at = t.at ? new Date(t.at) : null;
+      $("discLabel").textContent = at ? at.getHours() + ":" + pad(at.getMinutes()) : "Hecho";
+      $("status").textContent = "Hoy ya la has tomado";
+      $("sub").textContent = "Hasta mañana";
+    } else {
+      $("discLabel").textContent = "Toca al tomarla";
+      $("status").textContent = "Aún no la has tomado";
+      $("sub").textContent = "Hoy está pendiente";
+    }
+
+    let streak = 0;
+    let d = t ? now : addDays(now, -1);
+    while (days[key(d)]) { streak++; d = addDays(d, -1); }
+    $("streak").textContent = streak;
+    $("streakLbl").textContent = streak === 1 ? "día seguido" : "días seguidos";
+
+    const prefix = today.slice(0, 7);
+    const count = Object.keys(days).filter(k => k.startsWith(prefix)).length;
+    $("monthCount").textContent = count;
+    $("monthOf").textContent = " / " + now.getDate();
+    $("monthLbl").textContent = "en " + MONTHS[now.getMonth()];
+    $("monthBar").style.width = Math.min(100, Math.round(count / now.getDate() * 100)) + "%";
+
+    const y = view.getFullYear(), m = view.getMonth();
+    $("calTitle").textContent = MONTHS[m] + " " + y;
+    $("next").disabled = y === now.getFullYear() && m === now.getMonth();
+    const grid = $("days");
+    grid.textContent = "";
+    const offset = (new Date(y, m, 1).getDay() + 6) % 7;
+    const total = new Date(y, m + 1, 0).getDate();
+    for (let i = 0; i < offset; i++) {
+      const b = document.createElement("span"); b.className = "d blank"; grid.appendChild(b);
+    }
+    for (let n = 1; n <= total; n++) {
+      const k = key(new Date(y, m, n));
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = n;
+      const future = k > today;
+      b.className = "d" + (days[k] ? " on" : "") + (k === today ? " today" : "");
+      b.disabled = future;
+      b.setAttribute("aria-pressed", days[k] ? "true" : "false");
+      b.setAttribute("aria-label", n + " de " + MONTHS[m] + (days[k] ? ", tomada" : ", sin marcar"));
+      if (!future) b.addEventListener("click", () => toggle(k));
+      grid.appendChild(b);
+    }
+  }
+
+  function toggle(k) {
+    if (days[k]) delete days[k];
+    else days[k] = { at: k === key(new Date()) ? new Date().toISOString() : null };
+    save(); render();
+  }
+
+  $("ring").addEventListener("click", () => { const k = key(new Date()); if (!days[k]) toggle(k); });
+  $("undo").addEventListener("click", () => toggle(key(new Date())));
+  $("prev").addEventListener("click", () => { view.setMonth(view.getMonth() - 1); render(); });
+  $("next").addEventListener("click", () => { view.setMonth(view.getMonth() + 1); render(); });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); });
+
+  // Copia de seguridad
+  $("exportBtn").addEventListener("click", async () => {
+    const json = JSON.stringify({ app: "creatina", version: 1, days }, null, 1);
+    const name = "creatina-" + key(new Date()) + ".json";
+    try {
+      const file = new File([json], name, { type: "application/json" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "Copia de Creatina" });
+        $("backupMsg").textContent = "Copia lista. Guárdala en Archivos o en iCloud.";
+        return;
+      }
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    $("backupMsg").textContent = "Copia descargada.";
+  });
+
+  $("importBtn").addEventListener("click", () => $("importFile").click());
+  $("importFile").addEventListener("change", async e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    try {
+      const data = JSON.parse(await f.text());
+      const incoming = data && data.days && typeof data.days === "object" ? data.days : null;
+      if (!incoming) throw new Error("formato");
+      let added = 0;
+      Object.keys(incoming).forEach(k => {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && !days[k]) { days[k] = { at: incoming[k] && incoming[k].at || null }; added++; }
+      });
+      save(); render();
+      $("backupMsg").textContent = added ? "Restaurados " + added + " días." : "La copia no tenía días nuevos.";
+    } catch (err) {
+      $("backupMsg").textContent = "Ese archivo no es una copia de Creatina. Elige el .json que guardaste.";
+    }
+  });
+
+  load();
+  render();
+
+  if (navigator.storage && navigator.storage.persist) { navigator.storage.persist().catch(() => {}); }
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+  }
+})();
+</script>
+</body>
+</html>
