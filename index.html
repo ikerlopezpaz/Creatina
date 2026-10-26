@@ -414,7 +414,23 @@ dialog.sheet::backdrop { background: rgba(10, 4, 5, .45); }
   $("undo").addEventListener("click", () => toggle(key(new Date())));
   $("prev").addEventListener("click", () => { view.setMonth(view.getMonth() - 1); render(); });
   $("next").addEventListener("click", () => { view.setMonth(view.getMonth() + 1); render(); });
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); });
+
+  // Cambio de día: si la app se queda abierta a medianoche o vuelves a ella otro día,
+  // se pone al día sola y el calendario salta al mes actual.
+  let shownDay = key(new Date());
+  function refresh() {
+    const k = key(new Date());
+    if (k !== shownDay) { shownDay = k; view = new Date(); view.setDate(1); }
+    render();
+  }
+  function scheduleMidnight() {
+    const now = new Date();
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5);
+    setTimeout(() => { refresh(); scheduleMidnight(); }, next - now);
+  }
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+  window.addEventListener("pageshow", refresh);
+  scheduleMidnight();
 
   // Ajustes
   const dlg = $("settings");
@@ -477,7 +493,8 @@ dialog.sheet::backdrop { background: rgba(10, 4, 5, .45); }
           added++;
         }
       });
-      if (data.settings && typeof data.settings === "object") settings = Object.assign(settings, data.settings);
+      const dose = data.settings && Number(data.settings.dose);
+      if (dose >= 1 && dose <= 30) settings.dose = Math.round(dose * 2) / 2;
       save(); render();
       $("backupMsg").textContent = added ? "Restaurados " + added + " días." : "La copia no tenía días nuevos.";
     } catch (err) {
