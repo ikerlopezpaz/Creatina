@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap">
 <style>
-/* App de una pantalla: tarjeta degradada rojo coral→carmesí con el anillo de hoy, cifras, bote, calendario del mes */
+/* App de una pantalla: tarjeta degradada rojo coral→carmesí con el anillo de hoy, cifras, calendario del mes */
 :root {
   --bg: #fbefef;
   --surface: #ffffff;
@@ -136,26 +136,6 @@ header { display: flex; justify-content: space-between; align-items: center; gap
 .bar { height: 6px; border-radius: 3px; background: var(--soft); margin-top: 8px; overflow: hidden; }
 .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--hot-a), var(--hot-b)); border-radius: 3px; width: 0; transition: width .5s ease; }
 
-/* Bote */
-.jar { padding: 16px 18px; display: flex; align-items: center; gap: 16px; }
-.jar-fig { position: relative; width: 44px; height: 58px; flex: none; }
-.jar-fig .lid { position: absolute; left: 6px; right: 6px; top: 0; height: 9px; border-radius: 4px; background: var(--hot-b); }
-.jar-fig .body {
-  position: absolute; left: 0; right: 0; top: 7px; bottom: 0; border-radius: 10px;
-  border: 2px solid var(--line); background: var(--surface); overflow: hidden;
-}
-.jar-fig .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: linear-gradient(180deg, var(--hot-a), var(--hot-b)); opacity: .85; transition: height .5s ease; }
-.jar-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.jar-text .t1 { font-weight: 700; font-size: 1rem; }
-.jar-text .t1 b { font-family: var(--font-display); font-size: 1.15rem; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-.jar-text .t2 { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
-.jar.low .t2 { color: var(--hot-b); }
-.chip {
-  flex: none; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg);
-  font: inherit; font-size: 0.82rem; font-weight: 700; padding: 8px 12px; cursor: pointer;
-}
-.jar.low .chip { background: var(--hot-b); border-color: var(--hot-b); color: #ffffff; }
-
 /* Calendario */
 .cal { padding: 18px 16px 16px; }
 .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 2px; }
@@ -222,7 +202,7 @@ dialog.sheet::backdrop { background: rgba(10, 4, 5, .45); }
 .hint { margin: 0; color: var(--muted); font-size: 0.8rem; }
 
 @media (prefers-reduced-motion: reduce) {
-  .prog, .disc, .check path, .bar i, .d, .ring-btn, .jar-fig .fill { transition: none !important; }
+  .prog, .disc, .check path, .bar i, .d, .ring-btn { transition: none !important; }
 }
 </style>
 </head>
@@ -270,15 +250,6 @@ dialog.sheet::backdrop { background: rgba(10, 4, 5, .45); }
     </div>
   </section>
 
-  <section class="card jar" id="jar">
-    <div class="jar-fig" aria-hidden="true"><span class="lid"></span><span class="body"><span class="fill" id="jarFill"></span></span></div>
-    <div class="jar-text">
-      <span class="t1" id="jarT1">Bote</span>
-      <span class="t2" id="jarT2"></span>
-    </div>
-    <button class="chip" id="jarBtn" type="button">Bote nuevo</button>
-  </section>
-
   <section class="card cal">
     <div class="cal-head">
       <h3 id="calTitle"></h3>
@@ -323,16 +294,6 @@ dialog.sheet::backdrop { background: rgba(10, 4, 5, .45); }
       <p class="hint">Lo habitual son entre 3 y 5 g al día.</p>
     </div>
 
-    <div class="field">
-      <h3><label for="jarInput">Tamaño del bote (gramos)</label></h3>
-      <div class="stepper">
-        <button type="button" data-step="jar" data-d="-50" aria-label="Menos">−</button>
-        <input id="jarInput" type="number" inputmode="numeric" min="50" max="5000" step="50">
-        <button type="button" data-step="jar" data-d="50" aria-label="Más">+</button>
-      </div>
-      <p class="hint">Se usa al empezar un bote nuevo.</p>
-    </div>
-
     <button class="btn primary" id="saveSettings" type="submit">Guardar</button>
   </form>
 </dialog>
@@ -345,7 +306,7 @@ dialog.sheet::backdrop { background: rgba(10, 4, 5, .45); }
   const LS_SET = "creatina-ajustes";
 
   let days = {};
-  let settings = { dose: 7, jarSize: 300, jarStart: null, jarAmount: 300 };
+  let settings = { dose: 7 };
   let view = new Date(); view.setDate(1);
 
   const $ = id => document.getElementById(id);
@@ -417,29 +378,6 @@ dialog.sheet::backdrop { background: rgba(10, 4, 5, .45); }
     $("monthLbl").textContent = "en " + MONTHS[now.getMonth()];
     $("monthBar").style.width = Math.min(100, Math.round(count / now.getDate() * 100)) + "%";
 
-    // Bote
-    const jar = $("jar");
-    if (!settings.jarStart) {
-      jar.classList.remove("low");
-      $("jarT1").textContent = "Bote";
-      $("jarT2").textContent = "Empieza uno para saber cuánto te queda";
-      $("jarFill").style.height = "0%";
-      $("jarBtn").textContent = "Empezar";
-    } else {
-      const used = Object.keys(days).filter(k => k >= settings.jarStart)
-        .reduce((s, k) => s + (typeof days[k].g === "number" ? days[k].g : settings.dose), 0);
-      const left = Math.max(0, settings.jarAmount - used);
-      const daysLeft = Math.floor(left / settings.dose);
-      const low = daysLeft <= 7;
-      jar.classList.toggle("low", low);
-      $("jarT1").innerHTML = "Quedan <b>" + fmtG(left) + " g</b>";
-      $("jarT2").textContent = left <= 0 ? "Bote vacío"
-        : low ? (daysLeft === 1 ? "Para 1 día. Compra otro ya" : "Para " + daysLeft + " días. Compra otro pronto")
-        : "Para unos " + daysLeft + " días";
-      $("jarFill").style.height = Math.max(0, Math.min(100, left / settings.jarAmount * 100)) + "%";
-      $("jarBtn").textContent = "Bote nuevo";
-    }
-
     // Calendario
     const y = view.getFullYear(), m = view.getMonth();
     $("calTitle").textContent = MONTHS[m] + " " + y;
@@ -478,19 +416,10 @@ dialog.sheet::backdrop { background: rgba(10, 4, 5, .45); }
   $("next").addEventListener("click", () => { view.setMonth(view.getMonth() + 1); render(); });
   document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); });
 
-  // Bote nuevo: empieza a contar desde mañana si hoy ya se tomó (esa toma era del bote anterior)
-  $("jarBtn").addEventListener("click", () => {
-    const now = new Date();
-    settings.jarStart = days[key(now)] ? key(addDays(now, 1)) : key(now);
-    settings.jarAmount = settings.jarSize;
-    save(); render();
-  });
-
   // Ajustes
   const dlg = $("settings");
   function openSettings() {
     $("doseInput").value = settings.dose;
-    $("jarInput").value = settings.jarSize;
     if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
   }
   function closeSettings() { if (dlg.close) dlg.close(); else dlg.removeAttribute("open"); }
@@ -498,19 +427,14 @@ dialog.sheet::backdrop { background: rgba(10, 4, 5, .45); }
   $("closeSettings").addEventListener("click", closeSettings);
   dlg.addEventListener("click", e => { if (e.target === dlg) closeSettings(); });
   document.querySelectorAll("[data-step]").forEach(b => b.addEventListener("click", () => {
-    const input = b.dataset.step === "dose" ? $("doseInput") : $("jarInput");
+    const input = $("doseInput");
     const v = (parseFloat(String(input.value).replace(",", ".")) || 0) + parseFloat(b.dataset.d);
     input.value = Math.min(parseFloat(input.max), Math.max(parseFloat(input.min), v));
   }));
   $("settingsForm").addEventListener("submit", e => {
     e.preventDefault();
     const dose = parseFloat(String($("doseInput").value).replace(",", "."));
-    const jarSize = parseInt($("jarInput").value, 10);
     if (dose >= 1 && dose <= 30) settings.dose = Math.round(dose * 2) / 2;
-    if (jarSize >= 50 && jarSize <= 5000) {
-      if (settings.jarStart && settings.jarAmount === settings.jarSize) settings.jarAmount = jarSize;
-      settings.jarSize = jarSize;
-    }
     save(); render(); closeSettings();
   });
 

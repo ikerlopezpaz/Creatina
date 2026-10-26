@@ -1,5 +1,5 @@
 // Guarda la app en el iPhone para que abra sin conexión.
-const CACHE = "creatina-v3";
+const CACHE = "creatina-v4";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", event => {
